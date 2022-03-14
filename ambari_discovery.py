@@ -41,6 +41,12 @@ def get_config_params(config_file):
   cluster_name = parser.get('ambari_config', 'cluster_name')
   output_dir = parser.get('ambari_config', 'output_dir')
 
+  hive_metastore_type = parser.get('hive_config', 'hive_metastore_type')
+  hive_metastore_server = parser.get('hive_config', 'hive_metastore_server')
+  hive_metastore_server_port = parser.get('hive_config', 'hive_metastore_server_port')
+  hive_metastore_database_name = parse.get('hive_config', 'hive_metastore_database_name')
+  hive_metastore_database_password = parse.get('hive_config', 'hive_metastore_database_password')
+
   if not ambari_server_port.isdigit():
     log.error("Invalid port specified for Ambari Server. Exiting")
     sys.exit(1)
@@ -51,12 +57,18 @@ def get_config_params(config_file):
     log.error("Invalid timeout value specified for Ambari Server. Using default of 30 seconds")
     ambari_server_timeout = 30
 
-  # Prepare dictionary object with config variables populated
+  # Prepare dictionary object with config variables populated for both anmabri and ranger.
   config_dict = {}
   config_dict["ambari_server_host"] = ambari_server_host
   config_dict["ambari_server_port"] = ambari_server_port
   config_dict["ambari_server_timeout"] = ambari_server_timeout
   config_dict["output_dir"] = output_dir
+  config_dict["hive_metastore_type"] = hive_metastore_type
+  config_dict["hive_metastore_server"] = hive_metastore_server
+  config_dict["hive_metastore_server_port"] = hive_metastore_server_port
+  config_dict["hive_metastore_database_name"] = hive_metastore_database_name
+  config_dict["hive_metastore_database_password"] = hive_metastore_database_password
+
 
   if re.match(r'^[A-Za-z0-9_]+$', cluster_name):
     config_dict["cluster_name"] = cluster_name
