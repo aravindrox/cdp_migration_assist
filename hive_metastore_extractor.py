@@ -7,6 +7,7 @@ import jaydebeapi
 
 root_path = os.path.dirname(os.path.realpath(__file__))
 log = logging.getLogger('main')
+log.setLevel(logging.INFO)
 
 psql = {
     'driver_class': 'org.postgresql.Driver',
@@ -52,16 +53,22 @@ def write_csv(columns, rows, output):
 
 
 class HiveMetastoreExtractor:
-    def __init__(self, output_dir):
-        self.output_dir = output_dir
+    def __init__(self, ambari_conf):
+        self.output_dir = ambari_conf['output_dir']
+        self.hive_metastore_type = ambari_conf['hive_metastore_type']
+        self.hive_metastore_server = ambari_conf['hive_metastore_server']
+        self.hive_metastore_server_port = ambari_conf['hive_metastore_server_port']
+        self.hive_metastore_database_name = ambari_conf['hive_metastore_database_name']
+        self.hive_metastore_database_user = ambari_conf['hive_metastore_database_user']
+        self.hive_metastore_database_password = ambari_conf['hive_metastore_database_password']
 
-    def collect_metastore_info(self, output_dir):
-        db_type = "mysql"
-        db_host = "c1296-node3.squadron.support.hortonworks.com"
-        db_port = 3306
-        db_name = "hive"
-        db_user = "hive"
-        db_password = "hive_password"
+    def collect_metastore_info(self):
+        db_type = self.hive_metastore_type
+        db_host = self.hive_metastore_server
+        db_port = self.hive_metastore_server_port
+        db_name = self.hive_metastore_database_name
+        db_user = self.hive_metastore_database_user
+        db_password = self.hive_metastore_database_password
         db_constant = db_constants.get(db_type)
         if not db_constant:
             log.error("Unsupported database type: {db_type}")
@@ -77,8 +84,5 @@ class HiveMetastoreExtractor:
         curs.execute(db_constant['query'])
         columns = [column_description[0] for column_description in curs.description]
         rows = curs.fetchall()
-        write_csv(columns, rows, os.path.join(output_dir, "hive_ms.csv"))
+        write_csv(columns, rows, os.path.join(self.output_dir, "hive_ms.csv"))
         log.debug("Hive Metastore collection finished.")
-
-hme = HiveMetastoreExtractor("/tmp")
-hme.collect_metastore_info("/tmp")

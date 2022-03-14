@@ -11,14 +11,19 @@ import urllib3
 import yaml
 
 from ambari_cluster_extractor import AmbariApiExtractor
+from hive_metastore_extractor import HiveMetastoreExtractor
 
 root_path = os.path.dirname(os.path.realpath(__file__))
-with open(os.path.join(root_path, '../conf', 'log-config.yaml'), 'r') as stream:
+
+
+with open(os.path.join(root_path, 'conf', 'log-config.yaml'), 'r') as stream:
     config = yaml.load(stream, Loader=yaml.FullLoader)
     log_path = config['handlers']['file']['filename']
     config['handlers']['file']['filename'] = os.path.join(root_path, log_path)
 logging.config.dictConfig(config)
 log = logging.getLogger('main')
+
+log.debug("root path =>" + root_path)
 
 def get_config_params(config_file):
   try:
@@ -44,8 +49,9 @@ def get_config_params(config_file):
   hive_metastore_type = parser.get('hive_config', 'hive_metastore_type')
   hive_metastore_server = parser.get('hive_config', 'hive_metastore_server')
   hive_metastore_server_port = parser.get('hive_config', 'hive_metastore_server_port')
-  hive_metastore_database_name = parse.get('hive_config', 'hive_metastore_database_name')
-  hive_metastore_database_password = parse.get('hive_config', 'hive_metastore_database_password')
+  hive_metastore_database_name = parser.get('hive_config', 'hive_metastore_database_name')
+  hive_metastore_database_user = parser.get('hive_config', 'hive_metastore_database_user')
+  hive_metastore_database_password = parser.get('hive_config', 'hive_metastore_database_password')
 
   if not ambari_server_port.isdigit():
     log.error("Invalid port specified for Ambari Server. Exiting")
@@ -68,6 +74,8 @@ def get_config_params(config_file):
   config_dict["hive_metastore_server_port"] = hive_metastore_server_port
   config_dict["hive_metastore_database_name"] = hive_metastore_database_name
   config_dict["hive_metastore_database_password"] = hive_metastore_database_password
+  config_dict["hive_metastore_database_user"] = hive_metastore_database_user
+
 
 
   if re.match(r'^[A-Za-z0-9_]+$', cluster_name):
@@ -95,7 +103,7 @@ if __name__ == '__main__':
     threads = []
 
     #ambari_conf = {}
-    ambari_conf = get_config_params(os.path.join(root_path, '../conf', 'config.ini'))
+    ambari_conf = get_config_params(os.path.join(root_path, 'conf', 'config.ini'))
 
     # TODO: Add options for module choices
     module='all'
@@ -103,6 +111,10 @@ if __name__ == '__main__':
     if module == 'all' or module == 'ambari_api':
         ambari_api_extractor = AmbariApiExtractor(ambari_conf)
         threads.append(Thread(target=ambari_api_extractor.collect_ambari_api_diagnostic, name="ambari_api_thread"))
+
+    if module == 'all' or module == 'hive_metastore':
+        hive_ms_extractor = HiveMetastoreExtractor(ambari_conf)
+        threads.append(Thread(target=hive_ms_extractor.collect_metastore_info, name="hive_ms_thread"))
 
     for thread in threads:
         thread.start()
