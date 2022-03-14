@@ -13,7 +13,7 @@ handlers:
     class: logging.FileHandler
     formatter: simple
     level: DEBUG
-    filename: ../output/mac-discovery-builder.log
+    filename: ./output/mac-discovery-builder.log
     mode: w
 loggers:
   main:

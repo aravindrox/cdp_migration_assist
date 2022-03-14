@@ -4,7 +4,7 @@ import os
 import base64
 import urllib.request
 from pathlib import Path
-from configmapping import get_component_config, filter_parameters
+#from configmapping import get_component_config, filter_parameters
 from connectionchecks import test_socket
 
 log = logging.getLogger('main')
