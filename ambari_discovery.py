@@ -15,7 +15,6 @@ from hive_metastore_extractor import HiveMetastoreExtractor
 
 root_path = os.path.dirname(os.path.realpath(__file__))
 
-
 with open(os.path.join(root_path, 'conf', 'log-config.yaml'), 'r') as stream:
     config = yaml.load(stream, Loader=yaml.FullLoader)
     log_path = config['handlers']['file']['filename']
@@ -24,6 +23,7 @@ logging.config.dictConfig(config)
 log = logging.getLogger('main')
 
 log.debug("root path =>" + root_path)
+log.debug("log path =>" + log_path)
 
 def get_config_params(config_file):
   try:
