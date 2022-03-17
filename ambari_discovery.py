@@ -12,6 +12,7 @@ import yaml
 
 from ambari_cluster_extractor import AmbariApiExtractor
 from hive_metastore_extractor import HiveMetastoreExtractor
+from metrics_discovery import MetricsExtractor
 
 root_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -43,6 +44,7 @@ def get_config_params(config_file):
   ambari_user = parser.get('ambari_config', 'ambari_user')
   ambari_pass = parser.get('ambari_config', 'ambari_pass')
   ambari_server_timeout = parser.get('ambari_config', 'ambari_server_timeout')
+  ambari_http_protocol = parser.get('ambari_config', 'ambari_http_protocol')
   cluster_name = parser.get('ambari_config', 'cluster_name')
   output_dir = parser.get('ambari_config', 'output_dir')
 
@@ -52,6 +54,7 @@ def get_config_params(config_file):
   hive_metastore_database_name = parser.get('hive_config', 'hive_metastore_database_name')
   hive_metastore_database_user = parser.get('hive_config', 'hive_metastore_database_user')
   hive_metastore_database_password = parser.get('hive_config', 'hive_metastore_database_password')
+
 
   if not ambari_server_port.isdigit():
     log.error("Invalid port specified for Ambari Server. Exiting")
@@ -75,6 +78,7 @@ def get_config_params(config_file):
   config_dict["hive_metastore_database_name"] = hive_metastore_database_name
   config_dict["hive_metastore_database_password"] = hive_metastore_database_password
   config_dict["hive_metastore_database_user"] = hive_metastore_database_user
+  config_dict["ambari_http_protocol"] = ambari_http_protocol
 
 
 
@@ -115,6 +119,10 @@ if __name__ == '__main__':
     if module == 'all' or module == 'hive_metastore':
         hive_ms_extractor = HiveMetastoreExtractor(ambari_conf)
         threads.append(Thread(target=hive_ms_extractor.collect_metastore_info, name="hive_ms_thread"))
+
+    # if module == 'all' or module == 'extract_metrics':
+    #     metrics_extractor = MetricsExtractor(ambari_conf)
+    #     threads.append(Thread(target=metrics_extractor.collect_metrics, name="metrics_collector_thread"))
 
     for thread in threads:
         thread.start()

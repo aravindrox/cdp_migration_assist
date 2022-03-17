@@ -38,7 +38,7 @@ class AmbariApiExtractor:
         self.collect_hosts()
         self.collect_hosts_cpu_mem()
         self.collect_service_info()
-        self.collect_kerberos_info()
+        # self.collect_kerberos_info()
 
     # Print response from the Ambari server
     def send_ambari_request(self,url_suffix):
@@ -125,7 +125,7 @@ class AmbariApiExtractor:
             try:
                 hdfs_disk_space_response = self.send_ambari_request("/hosts/" + host_entry + "/host_components/DATANODE")
                 #log.debug(hdfs_disk_space_response)
-                hdfs_disk_space[host_entry] = hdfs_disk_space_response['metrics']['dfs']['FSDatasetState']['Capacity']
+                #hdfs_disk_space[host_entry] = hdfs_disk_space_response['metrics']['dfs']['FSDatasetState']['Capacity']
             except TypeError as e:
                 pass
 
